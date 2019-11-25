@@ -1,18 +1,52 @@
+
 import sqlite3
-conn = sqlite3.connect('Leerlingen.sqlite3')
+import os
+import click
 
+
+filename = "leerlingen.sqlite3"
+if (os.path.exists(filename)):
+    os.remove(filename)
+conn = sqlite3.connect(filename)
 c = conn.cursor()
+c.execute('''CREATE TABLE Leerlingen (ID INTEGER PRIMARY KEY, Voornaam text, Achternaam text)''')
 
-c.execute(''' CREATE TABLE leerlingen
-                (ID integer, primary key, Voornaam tekst, achternaam tekst)''')
 
-c.execute("INSERT INTO leerlingen VALUES('1', 'Joren', 'Rijk')")
-c.execute("INSERT INTO leerlingen VALUES('2', 'Flip', 'Bernaard')")
-c.execute("INSERT INTO leerlingen VALUES('3', 'Nick', 'Vervoort')")
-c.execute("INSERT INTO leerlingen VALUES('4', 'Michiel', 'Dries')")
-c.execute("INSERT INTO leerlingen VALUES('5', 'Jarnick', 'Sinaas')")
-c.execute("INSERT INTO leerlingen VALUES('6', 'Thijs', 'Vervelen')")
-c.execute("INSERT INTO leerlingen VALUES('7', 'Brent', 'Opwinden')")
-c.execute("INSERT INTO leerlingen VALUES('8', 'Arne', 'Muilemans')")
-c.execute("INSERT INTO leerlingen VALUES('9', 'Seppe', 'Weigerd')")
-c.execute("INSERT INTO leerlingen VALUES('10', 'Jarnick', 'Onderbroeckie')")
+c.execute("""INSERT INTO Leerlingen(Voornaam, Achternaam) VALUES (?,?);""",
+          ("Michiel", "Dries"))
+c.execute("""INSERT INTO Leerlingen(Voornaam, Achternaam) VALUES (?,?);""",
+          ("Jarnick", "Sas"))
+c.execute("""INSERT INTO Leerlingen(Voornaam, Achternaam) VALUES (?,?);""",
+          ("Jarnick", "De Rijk"))
+conn.commit()
+
+print("Letter:")
+letter = click.getchar()
+
+while letter != "S":
+    print(letter)
+    if letter == "N":
+        vname = input("Voornaam: ")
+        aname = input("Achternaam: ")
+        c.execute(
+            f"""INSERT INTO Leerlingen(Voornaam, Achternaam) VALUES (?,?)""", (vname, aname))
+    elif letter == "V":
+        for lln in c.execute('SELECT * FROM Leerlingen ORDER BY Voornaam ASC'):
+            print(lln[1] + " " + lln[2])
+    elif letter == "V":
+        for lln in c.execute('SELECT * FROM Leerlingen ORDER BY Achternaam ASC'):
+            print(lln[1] + " " + lln[2])
+    elif letter == "X":
+        id = (input("ID: "),)
+        c.execute(f'DELETE FROM Leerlingen WHERE ID=', id)
+    elif letter == "D":
+        voornaam = (input("Voornaam: "),)
+        lln = c.execute(
+            f'SELECT * FROM Leerlingen WHERE Voornaam=?', voornaam).fetchall()
+            
+        c.execute('DELETE FROM Leerlingen WHERE Voornaam={voornaam}')
+
+    conn.commit()
+    print("Actie:")
+    letter = click.getchar().upper()
+
